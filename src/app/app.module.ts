@@ -26,6 +26,8 @@ import { InMemoryCache } from "apollo-cache-inmemory";
 import { HttpClientModule  } from "@angular/common/http";
 import { ApolloClient } from 'apollo-client';
 
+import { WebSocketLink } from 'apollo-link-ws';
+
 @NgModule({
   declarations: [
     Auth0Wrapper,
@@ -58,11 +60,16 @@ import { ApolloClient } from 'apollo-client';
     useFactory: (httpLink) => {
       return new ApolloClient({
         cache: new InMemoryCache(),
-        link:  httpLink.create({
-          uri: 'https://hasura.io/learn/graphql',
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`
+        link: new WebSocketLink({
+          uri: 'wss://hasura.io/learn/graphql',
+          options: {
+            reconnect: true,
+            connectionParams: {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+              }
             }
+          }
         })
       })
     },
